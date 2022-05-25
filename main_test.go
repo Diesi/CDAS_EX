@@ -13,15 +13,6 @@ import (
 	"github.com/Diesi/CDAS_EX"
 )
 
-/*
-	"net/http"
-	"net/http/httptest"
-	"strconv"
-	"encoding/json"
-	"bytes"
-	"github.com/Diesi/CDAS_EX02"
-*/
-
 var a main.App
 
 func TestMain(m *testing.M) {
@@ -142,7 +133,7 @@ func addProducts(count int) {
     }
 
     for i := 0; i < count; i++ {
-        a.DB.Exec("INSERT INTO products(name, price) VALUES($1, $2)", "Product "+strconv.Itoa(i), (i+1.0)*10)
+        a.DB.Exec("INSERT INTO products(name, price) VALUES($1, $2)", "Product_"+strconv.Itoa(i), (i+1.0)*10)
     }
 }
 
@@ -177,5 +168,71 @@ func TestUpdateProduct(t *testing.T) {
 
     if m["price"] == originalProduct["price"] {
         t.Errorf("Expected the price to change from '%v' to '%v'. Got '%v'", originalProduct["price"], m["price"], m["price"])
+    }
+}
+
+func TestDeleteProduct(t *testing.T) {
+    clearTable()
+    addProducts(1)
+
+    req, _ := http.NewRequest("GET", "/product/1", nil)
+    response := executeRequest(req)
+    checkResponseCode(t, http.StatusOK, response.Code)
+
+    req, _ = http.NewRequest("DELETE", "/product/1", nil)
+    response = executeRequest(req)
+
+    checkResponseCode(t, http.StatusOK, response.Code)
+
+    req, _ = http.NewRequest("GET", "/product/1", nil)
+    response = executeRequest(req)
+    checkResponseCode(t, http.StatusNotFound, response.Code)
+}
+
+func TestGetCheapestProduct(t *testing.T) {
+    clearTable()
+    addProducts(5)
+
+    req, _ := http.NewRequest("GET", "/cheapestproduct", nil)
+    response := executeRequest(req)
+    checkResponseCode(t, http.StatusOK, response.Code)
+
+    var m map[string]interface{}
+    json.Unmarshal(response.Body.Bytes(), &m)
+
+    if m["price"] != 10.00 {
+        t.Errorf("Expected product price to be '10.00'. Got '%v'", m["price"])
+    }
+}
+
+func TestGetMostExpensiveProduct(t *testing.T) {
+    clearTable()
+    addProducts(5)
+
+    req, _ := http.NewRequest("GET", "/mostexpensiveproduct", nil)
+    response := executeRequest(req)
+    checkResponseCode(t, http.StatusOK, response.Code)
+
+    var m map[string]interface{}
+    json.Unmarshal(response.Body.Bytes(), &m)
+
+    if m["price"] != 50.00 {
+        t.Errorf("Expected product price to be '50.00'. Got '%v'", m["price"])
+    }
+}
+
+func TestGetProductByName(t *testing.T) {
+    clearTable()
+    addProducts(3)
+
+    req, _ := http.NewRequest("GET", "/productByName/Product_1", nil)
+    response := executeRequest(req)
+    checkResponseCode(t, http.StatusOK, response.Code)
+
+    var m map[string]interface{}
+    json.Unmarshal(response.Body.Bytes(), &m)
+
+    if m["name"] != "Product_1" {
+        t.Errorf("Expected product name to be 'Product_1'. Got '%v'", m["name"])
     }
 }

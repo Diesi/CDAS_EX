@@ -151,10 +151,72 @@ func (a *App) deleteProduct(w http.ResponseWriter, r *http.Request) {
     respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 }
 
+
+// ================ Added Features ================
+
+func (a *App) getCheapestProduct(w http.ResponseWriter, r *http.Request) {
+
+    p := product{}
+    if err := p.getCheapestProduct(a.DB); err != nil {
+        switch err {
+        case sql.ErrNoRows:
+            respondWithError(w, http.StatusNotFound, "Product not found")
+        default:
+            respondWithError(w, http.StatusInternalServerError, err.Error())
+        }
+        return
+    }
+
+    respondWithJSON(w, http.StatusOK, p)
+}
+
+func (a *App) getMostExpensiveProduct(w http.ResponseWriter, r *http.Request) {
+
+    p := product{}
+    if err := p.getMostExpensiveProduct(a.DB); err != nil {
+        switch err {
+        case sql.ErrNoRows:
+            respondWithError(w, http.StatusNotFound, "Product not found")
+        default:
+            respondWithError(w, http.StatusInternalServerError, err.Error())
+        }
+        return
+    }
+
+    respondWithJSON(w, http.StatusOK, p)
+}
+
+func (a *App) getProductByName(w http.ResponseWriter, r *http.Request) {
+    vars := mux.Vars(r)
+    name, err := vars["name"]
+    if err != true {
+        respondWithError(w, http.StatusBadRequest, "Invalid product Name")
+        return
+    }
+
+    p := product{Name: name}
+    if err := p.getProductByName(a.DB); err != nil {
+        switch err {
+        case sql.ErrNoRows:
+            respondWithError(w, http.StatusNotFound, "Product not found")
+        default:
+            respondWithError(w, http.StatusInternalServerError, err.Error())
+        }
+        return
+    }
+
+    respondWithJSON(w, http.StatusOK, p)
+}
+
+
+
 func (a *App) initializeRoutes() {
     a.Router.HandleFunc("/products", a.getProducts).Methods("GET")
     a.Router.HandleFunc("/product", a.createProduct).Methods("POST")
     a.Router.HandleFunc("/product/{id:[0-9]+}", a.getProduct).Methods("GET")
     a.Router.HandleFunc("/product/{id:[0-9]+}", a.updateProduct).Methods("PUT")
     a.Router.HandleFunc("/product/{id:[0-9]+}", a.deleteProduct).Methods("DELETE")
+    a.Router.HandleFunc("/cheapestproduct", a.getCheapestProduct).Methods("GET")
+    a.Router.HandleFunc("/mostexpensiveproduct", a.getMostExpensiveProduct).Methods("GET")
+    a.Router.HandleFunc("/productByName/{name}", a.getProductByName).Methods("GET")
 }
