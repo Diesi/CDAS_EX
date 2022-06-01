@@ -9,10 +9,10 @@ on:
 jobs:
   build:
     env:
-        APP_DB_USERNAME: "postgres"
-        APP_DB_PASSWORD: "CDAS"
-        APP_DB_NAME: "cdas_ex02"
-      runs-on: ubuntu-latest
+      APP_DB_USERNAME: "postgres"
+      APP_DB_PASSWORD: "CDAS"
+      APP_DB_NAME: "cdas_ex02"
+    runs-on: ubuntu-latest
     services:
       postgres:
         image: postgres:14.3
@@ -27,7 +27,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
+          
     steps:
     - uses: actions/checkout@v3
     - name: Set up Go
