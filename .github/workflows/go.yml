@@ -7,16 +7,34 @@ on:
     branches: [ master ]
 
 jobs:
-
   build:
-    runs-on: ubuntu-latest
+    env:
+        APP_DB_USERNAME: "postgres"
+        APP_DB_PASSWORD: "CDAS"
+        APP_DB_NAME: "cdas_ex02"
+      runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14.3
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: CDAS
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
     - uses: actions/checkout@v3
-
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
         go-version: 1.18
-
-    - name: Test
+    - name: Build
+      run: go build -v ./...
+    - name: Run tests
       run: go test -v ./...

@@ -216,6 +216,7 @@ func (a *App) initializeRoutes() {
     a.Router.HandleFunc("/product/{id:[0-9]+}", a.getProduct).Methods("GET")
     a.Router.HandleFunc("/product/{id:[0-9]+}", a.updateProduct).Methods("PUT")
     a.Router.HandleFunc("/product/{id:[0-9]+}", a.deleteProduct).Methods("DELETE")
+    // ============== Added Features ===============
     a.Router.HandleFunc("/cheapestproduct", a.getCheapestProduct).Methods("GET")
     a.Router.HandleFunc("/mostexpensiveproduct", a.getMostExpensiveProduct).Methods("GET")
     a.Router.HandleFunc("/productByName/{name}", a.getProductByName).Methods("GET")

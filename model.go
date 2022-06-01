@@ -17,11 +17,6 @@ func (p *product) getProduct(db *sql.DB) error {
         p.ID).Scan(&p.Name, &p.Price)
 }
 
-func (p *product) getProductByName(db *sql.DB) error {
-    return db.QueryRow("SELECT name, price FROM products WHERE name=$1",
-        p.Name).Scan(&p.Name, &p.Price)
-}
-
 func (p *product) updateProduct(db *sql.DB) error {
     _, err :=
         db.Exec("UPDATE products SET name=$1, price=$2 WHERE id=$3",
@@ -78,6 +73,11 @@ func (p *product) getCheapestProduct(db *sql.DB) error {
 
 func (p *product) getMostExpensiveProduct(db *sql.DB) error {
     return db.QueryRow("SELECT name, price FROM products WHERE price = (SELECT MAX(price) FROM products)").Scan(&p.Name, &p.Price)
+}
+
+func (p *product) getProductByName(db *sql.DB) error {
+    return db.QueryRow("SELECT name, price FROM products WHERE name=$1",
+        p.Name).Scan(&p.Name, &p.Price)
 }
 
 
